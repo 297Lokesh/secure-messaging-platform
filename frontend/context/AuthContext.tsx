@@ -9,7 +9,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  validateCredentials: (usernameOrPhone: string, password?: string) => Promise<{
+  validateCredentials: (usernameOrPhone: string, password?: string, otp?: string | null) => Promise<{
     requires_otp: boolean;
     mock_otp: string;
     phone: string;
@@ -85,8 +85,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, loading, pathname, router]);
 
   const validateCredentials = useCallback(
-    async (usernameOrPhone: string, password?: string) => {
-      const data = await authApi.validateCredentials({ username_or_phone: usernameOrPhone, password });
+    async (usernameOrPhone: string, password?: string, otp?: string | null) => {
+      const data = await authApi.validateCredentials({
+        username_or_phone: usernameOrPhone,
+        password,
+        otp,
+      });
       return data;
     },
     []

@@ -71,16 +71,24 @@ function LoginForm() {
       // Validate credentials against backend. User does NOT enter chat yet.
       const data = await validateCredentials(
         usernameOrPhone.trim(),
-        password || undefined
+        password || undefined,
+        null
       );
 
       setTargetPhone(data.phone);
       setTargetName(data.display_name);
       setStep(2);
     } catch (err: any) {
-      setErrorMessage(
-        err.response?.data?.detail || "Incorrect username/phone or password."
-      );
+      const serverDetail = err.response?.data?.detail;
+      const statusText = err.response?.status ? `(HTTP ${err.response.status})` : "";
+      const netMsg = err.message || err.code || "Network error";
+      if (serverDetail) {
+        setErrorMessage(typeof serverDetail === "string" ? serverDetail : JSON.stringify(serverDetail));
+      } else if (err.response?.status) {
+        setErrorMessage(`Server error ${statusText}: ${err.response.statusText || "Request failed"}`);
+      } else {
+        setErrorMessage(`Connection failed (${netMsg}). Unable to reach authentication server.`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -103,9 +111,16 @@ function LoginForm() {
       await verifyOtp(targetPhone || usernameOrPhone.trim(), otp.trim());
       // verifyOtp in AuthContext saves JWT session and redirects to /chat
     } catch (err: any) {
-      setErrorMessage(
-        err.response?.data?.detail || "Invalid OTP code. Please enter 123456."
-      );
+      const serverDetail = err.response?.data?.detail;
+      const statusText = err.response?.status ? `(HTTP ${err.response.status})` : "";
+      const netMsg = err.message || err.code || "Network error";
+      if (serverDetail) {
+        setErrorMessage(typeof serverDetail === "string" ? serverDetail : JSON.stringify(serverDetail));
+      } else if (err.response?.status) {
+        setErrorMessage(`Server error ${statusText}: ${err.response.statusText || "Request failed"}`);
+      } else {
+        setErrorMessage(`Connection failed (${netMsg}). Unable to reach authentication server.`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -120,14 +135,21 @@ function LoginForm() {
     setInfoMessage(null);
 
     try {
-      const data = await validateCredentials(username, "DemoPass123!");
+      const data = await validateCredentials(username, "DemoPass123!", null);
       setTargetPhone(data.phone);
       setTargetName(data.display_name);
       setStep(2);
     } catch (err: any) {
-      setErrorMessage(
-        err.response?.data?.detail || "Error validating demo user credentials."
-      );
+      const serverDetail = err.response?.data?.detail;
+      const statusText = err.response?.status ? `(HTTP ${err.response.status})` : "";
+      const netMsg = err.message || err.code || "Network error";
+      if (serverDetail) {
+        setErrorMessage(typeof serverDetail === "string" ? serverDetail : JSON.stringify(serverDetail));
+      } else if (err.response?.status) {
+        setErrorMessage(`Server error ${statusText}: ${err.response.statusText || "Request failed"}`);
+      } else {
+        setErrorMessage(`Connection failed (${netMsg}). Unable to reach authentication server.`);
+      }
     } finally {
       setIsLoading(false);
     }

@@ -128,6 +128,12 @@ def validate_credentials(req: LoginRequest, db: Session = Depends(get_db)):
             detail="Incorrect username/phone or password.",
         )
 
+    if req.otp and req.otp != MOCK_OTP_CODE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid OTP code. For testing, please use mock code: {MOCK_OTP_CODE}",
+        )
+
     return {
         "requires_otp": True,
         "mock_otp": MOCK_OTP_CODE,

@@ -8,7 +8,25 @@ import {
   UserSettings,
 } from "@/types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const getApiBaseUrl = (): string => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
+    return envUrl.replace(/\/+$/, "");
+  }
+
+  // In deployed browser environment (e.g. *.vercel.app), default to production backend
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+  ) {
+    return "https://secure-messaging-platform-kma1.vercel.app";
+  }
+
+  return (envUrl || "http://localhost:8000").replace(/\/+$/, "");
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -57,7 +75,16 @@ export const authApi = {
     return res.data;
   },
 
-  validateCredentials: async (data: { username_or_phone: string; password?: string }) => {
+  validateCredentials: async (data: {
+    username_or_phone: string;
+    password?: string;
+    otp?: string | null;
+  }) => {
+    const payload = {
+      username_or_phone: data.username_or_phone,
+      password: data.password || "",
+      otp: data.otp !== undefined ? data.otp : null,
+    };
     const res = await api.post<{
       requires_otp: boolean;
       mock_otp: string;
@@ -65,7 +92,7 @@ export const authApi = {
       username: string;
       display_name: string;
       message: string;
-    }>("/api/auth/validate-credentials", data);
+    }>("/api/auth/validate-credentials", payload);
     return res.data;
   },
 

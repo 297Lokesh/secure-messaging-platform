@@ -2,7 +2,24 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
-const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
+export const getWsBaseUrl = (): string => {
+  const envWs = process.env.NEXT_PUBLIC_WS_URL;
+  if (envWs && !envWs.includes("localhost") && !envWs.includes("127.0.0.1")) {
+    return envWs.replace(/\/+$/, "");
+  }
+
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+  ) {
+    return "wss://secure-messaging-platform-kma1.vercel.app";
+  }
+
+  return (envWs || "ws://localhost:8000").replace(/\/+$/, "");
+};
+
+const WS_BASE_URL = getWsBaseUrl();
 
 export type ConnectionStatus = "connected" | "connecting" | "disconnected";
 

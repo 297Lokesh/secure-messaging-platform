@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class RegisterRequest(BaseModel):
@@ -11,8 +11,25 @@ class RegisterRequest(BaseModel):
 
 
 class VerifyOtpRequest(BaseModel):
-    phone_or_username: str
+    phone_or_username: Optional[str] = None
+    phone: Optional[str] = None
+    username: Optional[str] = None
+    username_or_phone: Optional[str] = None
     otp: str
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_identifier(cls, values):
+        if isinstance(values, dict):
+            ident = (
+                values.get("phone_or_username")
+                or values.get("username_or_phone")
+                or values.get("phone")
+                or values.get("username")
+            )
+            if ident:
+                values["phone_or_username"] = str(ident)
+        return values
 
 
 class VerifyRegistrationResponse(BaseModel):
