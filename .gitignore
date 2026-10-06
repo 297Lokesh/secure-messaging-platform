@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+backend/venv/
+.env
+.env.local
+
+# SQLite Database
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
